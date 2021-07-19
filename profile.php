@@ -1,88 +1,103 @@
-<!DOCTYPE html>
-<html lang="en-US">
-  <head>
-  <title>CSC 506 PROFILE</title>
-  <link rel="stylesheet" href="libs/css/bootstrap.min.css">
-  <link rel="stylesheet" href="libs/style.css">
-  </head>
-  <?php
-  include 'connection.php';
+<?php 
+
   session_start();
-$id=$_SESSION['id'];
-$query=mysqli_query($db,"SELECT * FROM users where id='$id'")or die(mysqli_error());
-$row=mysqli_fetch_array($query);
-  ?>
-  <center>
-  <h1>User Profile</h1>
-<div class="profile-input-field">
-        <h3>Change Fields to Update</h3>
-        <form method="post" action="#" >
-          <div class="form-group">
-            <label>Fullname</label><br>
-            <input type="text" class="form-control" name="name" style="width:20em;" placeholder="Enter your new Fullname" value="<?php echo $row['name']; ?>" required />
-          </div><br>
+
+  require 'connect.php';
+  require 'functions.php';
+
+  if(isset($_SESSION['username'], $_SESSION['password'])) {
+
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Profile - Student Information System</title>
+
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+	<link href="assets/css/main.css" rel="stylesheet">
+
+
+</head>
+<body>
+
+  <?php include 'header.php'; ?>
+
+  <section>
+
+    <div class="container">
+      <strong class="title">My Profile</strong>  <a class="btn btn-primary" href="homechat.php">Join Group Chat</a>
+    </div>
+     
+    
+    <div class="profile-box box-left">
+<center><img src="../uploads/<?php echo $row['file'];?>" class="roundimage2"  alt=""/>
+<br><br>   
+      <?php
+     
+        if(isset($_SESSION['prompt'])) {
+          showPrompt();
+        }
+
+
+        $query = "SELECT * FROM students WHERE username = '".$_SESSION['username']."' AND password = '".$_SESSION['password']."'";
+
+        ;
+
+        if($result = mysqli_query($con, $query)) {
+
+          $row = mysqli_fetch_assoc($result);
+
+          echo "<div class='info'><strong>Mobile No:</strong> <span>".$row['studentno']."</span></div>";
 		  
-          <div class="form-group">
-            <label>Address</label><br>
-            <input type="text" class="form-control" name="address" style="width:20em;" placeholder="Enter your new address" required value="<?php echo $row['address']; ?>" />
-          </div><br>
-          <div class="form-group">
-            <label>E-mail</label><br>
-            <input type="email" class="form-control" name="email" style="width:20em;" placeholder="Enter your new email" value="<?php echo $row['email']; ?>">
-          </div><br>
-          <div class="form-group">
-            <label>Phone</label><br>
-            <input type="number" class="form-control" name="phone" style="width:20em;" required placeholder="Enter your new phone number" value="<?php echo $row['phone']; ?>">
-            </div><br>
-          <div class="form-group">
-            <label>Password</label><br>
-            <input type="password" class="form-control" name="password" style="width:20em;" required placeholder="set your password" value="<?php echo $row['password']; ?>">
-          </textarea>
-          </div><br>
 		  
-		  <div id="content">
- 
-        <form method="POST"
-              action=""
-              enctype="multipart/form-data">
-            <input type="file"
-                   name="uploadfile"
-                   value="" />
-				   <br>
-				   <br>
- 
+          echo "<div class='info'><strong>Student Name:</strong> <span>".$row['lastname'].", ".$row['firstname']."</span></div>";
 		  
-          <div class="form-group">
-            <input type="submit" name="submit" class="btn btn-primary" style="width:10em; margin:0;"><br><br>
-            <center>
-             <a href="logout.php">Click here to Log out</a>
-           </center>
-          </div>
-        </form>
+		  
+         echo "<div class='info'><strong>Student Email:</strong> <span>".$row['email']."</span></div>";
+         echo "<div class='info'><strong>Student Address:</strong> <span>".$row['address']."</span></div>";
+
+          $query_date = "SELECT DATE_FORMAT(date_joined, '%m/%d/%Y') FROM students WHERE id = '".$_SESSION['userid']."'";
+          $result = mysqli_query($con, $query_date);
+
+          $row = mysqli_fetch_row($result);
+
+          echo "<div class='info'><strong>Date Joined:</strong> <span>".$row[0]."</span></div>";
+
+        } else {
+
+          die("Error with the query in the database");
+
+        }
+
+      ?>
+      
+      <div class="options">
+        <a class="btn btn-primary" href="editprofile.php">Edit Profile</a>
+        <a class="btn btn-success" href="changepassword.php">Change Password</a>
       </div>
-      </html>
-    <?php
-      if(isset($_POST['submit']))
-      {
-        $name = $_POST['name'];
-        $address = $_POST['address'];
-        $email = $_POST['email'];
-        $phone = $_POST['phone'];
-        $password = $_POST['password'];
-		$photo = $_POST['photo'];
-      $query = "UPDATE users SET name = '$name',
-                      address = '$address', email = '$email', phone = $phone
-                      WHERE id = '$id'";
-                    $result = mysqli_query($db, $query) or die(mysqli_error($db));
-                    ?>
-                     <script type="text/javascript">
-            alert("Update Successfull.");
-            window.location = "index.php";
-       
-		
-		
-		
-		</script>
-        <?php
-             }               
+
+      
+    </div>
+
+  </section>
+
+
+	<script src="assets/js/jquery-3.1.1.min.js"></script>
+  <script src="assets/js/bootstrap.min.js"></script>
+	<script src="assets/js/main.js"></script>
+</body>
+</html>
+
+<?php
+
+
+  } else {
+    header("location:index.php");
+    exit;
+  }
+
+  unset($_SESSION['prompt']);
+  mysqli_close($con);
+
 ?>
